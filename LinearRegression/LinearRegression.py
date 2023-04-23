@@ -38,23 +38,53 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
         print(std_out.strip(), std_err)
     pass
 
+def linearReg(car_data):
+    X = car_data[['Age', 'Kms_Driven']]
+    y = car_data[['Selling_Price']]
+    
+    fig, axs = plt.subplots(ncols=2, figsize = (8, 7))
+    for ax in fig.get_axes():
+        ax.label_outer()
+    
+    linear = LinearRegression()
+    # train the model
+    linear.fit(X[['Age']], y)
+    
+
+    y_pred = linear.predict(X[['Age']])
+
+    sns.scatterplot(x = 'Age', y = 'Selling_Price', data = car_data, ax=axs[0])
+    plt.xlabel('Age') # set the labels of the x and y axes
+    plt.ylabel('Selling_Price (lakhs)')
+    axs[0].plot(X['Age'], y_pred, color='red')
+
+    linear.fit(X[['Kms_Driven']], y)
+    y_pred = linear.predict(X[['Kms_Driven']])
+
+    sns.scatterplot(x = 'Kms_Driven', y = 'Selling_Price', data = car_data, ax=axs[1])
+    plt.xlabel('Kms_Driven') # set the labels of the x and y axes
+    plt.ylabel('Selling_Price (lakhs)')
+    axs[1].plot(X['Kms_Driven'], y_pred, color='red')
+
+def linearReg3D(car_data):
+# Seaborn 3D plot example is inspired from https://www.educba.com/seaborn-3d-plot/
+    plt.figure (figsize = (8, 7))
+    seaborn_plot = plt.axes (projection='3d')
+    seaborn_plot.scatter3D(car_data['Age'], car_data['Kms_Driven']/1000, car_data['Selling_Price'])
+    seaborn_plot.set_xlabel ('Age')
+    seaborn_plot.set_ylabel ('Kms (x1000)')
+
+
 def main():
-    #if not os.path.isfile('car_dekho.csv'):
-    runcmd('/opt/homebrew/bin/wget -q --show-progress "https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%201%20-%205/Session%202a%20-%20Linear%20Regression/car_dekho.csv"', verbose = True)
+    if not os.path.isfile('car_dekho.csv'):
+        runcmd('/opt/homebrew/bin/wget -q --show-progress "https://storage.googleapis.com/inspirit-ai-data-bucket-1/Data/AI%20Scholars/Sessions%201%20-%205/Session%202a%20-%20Linear%20Regression/car_dekho.csv"', verbose = True)
 
     data_path  = 'car_dekho.csv'
     car_data = pd.read_csv(data_path)
 
-    car_data.head() 
-    print(len(car_data))
+    linearReg(car_data)
 
-    sns.scatterplot(x = 'Age', y = 'Selling_Price', data = car_data)
-    sns.catplot(x = 'Fuel_Type', y = 'Selling_Price', data = car_data, kind = 'swarm', s = 2)
-    sns.catplot(x = 'Fuel_Type', y = 'Selling_Price', data = car_data, kind = 'box')
-    sns.scatterplot(x = 'Kms_Driven', y = 'Selling_Price', data = car_data)
-    X = car_data[['Age']]
-    y = car_data[['Selling_Price']]
-
+    linearReg3D(car_data)
 
     plt.show()
 
